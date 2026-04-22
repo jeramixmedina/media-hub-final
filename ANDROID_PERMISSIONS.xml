@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  INSTRUCTIONS: After running `npx cap add android`, open this file:
+  android/app/src/main/AndroidManifest.xml
+
+  Add these permission lines INSIDE the <manifest> tag,
+  BEFORE the <application> tag:
+-->
+
+<!--
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="29" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+
+    Also add this attribute to the <application> tag:
+    android:requestLegacyExternalStorage="true"
+
+    Final <application> tag should look like:
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+-->
