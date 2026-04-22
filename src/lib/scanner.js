@@ -1,6 +1,8 @@
 import { Filesystem, Directory } from '@capacitor/filesystem'
 
 const VIDEO_EXTENSIONS = ['.mp4', '.webm', '.mkv', '.avi', '.m4v']
+const AUDIO_EXTENSIONS = ['.mp3', '.flac', '.aac', '.wav', '.ogg', '.m4a']
+const ALL_EXTENSIONS   = [...VIDEO_EXTENSIONS, ...AUDIO_EXTENSIONS]
 
 // ─── Filename Parser ──────────────────────────────────────────────────────────
 // Format: "Song Title - Artist Name.mp4"
@@ -24,9 +26,14 @@ export function parseFilename(filename) {
   }
 }
 
-function isVideoFile(filename) {
+function isMediaFile(filename) {
   const lower = filename.toLowerCase()
-  return VIDEO_EXTENSIONS.some(ext => lower.endsWith(ext))
+  return ALL_EXTENSIONS.some(ext => lower.endsWith(ext))
+}
+
+function checkIsAudio(filename) {
+  const lower = filename.toLowerCase()
+  return AUDIO_EXTENSIONS.some(ext => lower.endsWith(ext))
 }
 
 // Generate a stable ID from the file path
@@ -70,14 +77,15 @@ async function _scan(path, results, onProgress) {
       if (!file.name.startsWith('.')) {
         await _scan(fullPath, results, onProgress)
       }
-    } else if (isVideoFile(file.name)) {
+    } else if (isMediaFile(file.name)) {
       const { title, artist } = parseFilename(file.name)
       results.push({
         id: makeId(fullPath),
         title,
         artist,
-        filePath: fullPath,   // relative to ExternalStorage root
-        number: null,         // assigned manually later
+        filePath: fullPath,
+        number: null,
+        isAudio: checkIsAudio(file.name),
       })
       onProgress && onProgress(results.length)
     }
@@ -93,18 +101,41 @@ async function _scan(path, results, onProgress) {
 export function mergeWithExisting(freshSongs, existingLibrary) {
   const existingMap = new Map(existingLibrary.map(s => [s.id, s]))
 
+  // Feature 4: find the highest existing number so we can continue from there
+  const maxNum = existingLibrary.reduce((max, s) => {
+    const n = parseInt(s.number)
+    return !isNaN(n) && n > max ? n : max
+  }, 0)
+
+  // Collect only truly NEW songs (not in existing library)
+  const newSongs = freshSongs.filter(s => !existingMap.has(s.id))
+
+  // Sort new songs alphabetically for consistent, predictable numbering
+  newSongs.sort((a, b) => a.title.localeCompare(b.title))
+
+  // Assign sequential numbers starting after the current max
+  let nextNum = maxNum + 1
+  const autoNumbers = new Map()
+  newSongs.forEach(s => {
+    autoNumbers.set(s.id, String(nextNum++))
+  })
+
   return freshSongs.map(fresh => {
     const existing = existingMap.get(fresh.id)
     if (existing) {
-      // Preserve manually set fields
+      // Preserve manually set fields for existing songs
       return {
         ...fresh,
         number: existing.number ?? null,
-        title: existing.title ?? fresh.title,
+        title:  existing.title  ?? fresh.title,
         artist: existing.artist ?? fresh.artist,
       }
     }
-    return fresh
+    // New song — auto-assign number
+    return {
+      ...fresh,
+      number: autoNumbers.get(fresh.id) ?? null,
+    }
   })
 }
 

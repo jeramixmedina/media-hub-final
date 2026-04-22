@@ -7,6 +7,7 @@ import NowPlaying from './screens/NowPlaying'
 import QueueScreen from './screens/QueueScreen'
 import FavoritesScreen from './screens/FavoritesScreen'
 import Settings from './screens/Settings'
+import SonglistScreen from './screens/SonglistScreen'
 import { useApp } from './context/AppContext'
 
 export default function App() {
@@ -24,6 +25,7 @@ export default function App() {
           <Route path="/queue"      element={<QueueScreen />} />
           <Route path="/favorites"  element={<FavoritesScreen />} />
           <Route path="/settings"   element={<Settings />} />
+          <Route path="/songlist"   element={<SonglistScreen />} />
         </Routes>
       </div>
 
