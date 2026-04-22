@@ -1,6 +1,7 @@
 import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import BottomNav from './components/BottomNav'
+import PlaybackToolbar from './components/PlaybackToolbar'
 import Songbook from './screens/Songbook'
 import SearchScreen from './screens/SearchScreen'
 import NowPlaying from './screens/NowPlaying'
@@ -27,6 +28,11 @@ export default function App() {
           <Route path="/remote"     element={<RemoteScreen />} />
         </Routes>
       </div>
+
+      {/* Playback toolbar — numpad + QR, only shows when song is playing */}
+      <PlaybackToolbar />
+
+      {/* Main nav */}
       <BottomNav hasNowPlaying={!!currentSong} />
     </div>
   )

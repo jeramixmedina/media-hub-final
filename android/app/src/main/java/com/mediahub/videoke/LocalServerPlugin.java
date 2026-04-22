@@ -103,20 +103,32 @@ public class LocalServerPlugin extends Plugin {
     // ── Helpers ──────────────────────────────────────────────────────────────
 
     private String getDeviceIp() {
+        // Priority: hotspot interface first, then any active WiFi/ethernet
+        String fallback = null;
         try {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
             for (NetworkInterface ni : Collections.list(interfaces)) {
                 if (!ni.isUp() || ni.isLoopback()) continue;
+                String name = ni.getName().toLowerCase();
                 for (InetAddress addr : Collections.list(ni.getInetAddresses())) {
-                    if (!addr.isLoopbackAddress() && addr instanceof Inet4Address) {
-                        return addr.getHostAddress();
+                    if (addr.isLoopbackAddress()) continue;
+                    if (!(addr instanceof Inet4Address)) continue;
+                    String ip = addr.getHostAddress();
+                    // Android hotspot interfaces: wlan_ap, ap0, swlan0, wlan1
+                    if (name.contains("ap") || name.contains("swlan") || name.equals("wlan1")) {
+                        return ip;  // hotspot IP — highest priority
+                    }
+                    // Regular WiFi — keep as fallback
+                    if (name.startsWith("wlan") || name.startsWith("eth")) {
+                        fallback = ip;
                     }
                 }
             }
         } catch (Exception e) {
             Log.e(TAG, "getDeviceIp error", e);
         }
-        return "0.0.0.0";
+        // Return fallback WiFi IP, or Android hotspot default
+        return fallback != null ? fallback : "192.168.43.1";
     }
 
     static String readFile(File f) throws IOException {
