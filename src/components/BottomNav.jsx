@@ -1,5 +1,5 @@
 import React from 'react'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 
 function Icon({ name }) {
@@ -38,13 +38,12 @@ function Icon({ name }) {
         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
       </svg>
     ),
-    songlist: (
+    remote: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
-        <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
-        <line x1="8" y1="18" x2="21" y2="18"/>
-        <circle cx="3" cy="6" r="1" fill="currentColor"/>
-        <circle cx="3" cy="12" r="1" fill="currentColor"/>
-        <circle cx="3" cy="18" r="1" fill="currentColor"/>
+        <rect x="3" y="3" width="7" height="7" rx="1"/>
+        <rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/>
+        <path d="M14 14h.01M14 17h.01M17 14h.01M17 17h.01M20 14h.01M20 17h.01M20 20h.01M17 20h.01M14 20h.01"/>
       </svg>
     ),
     settings: (
@@ -60,10 +59,10 @@ function Icon({ name }) {
 const tabs = [
   { path: '/songbook',   icon: 'songbook',  label: 'Songbook' },
   { path: '/search',     icon: 'search',    label: 'Search' },
-  { path: '/nowplaying', icon: 'play',      label: 'Now Playing', center: true },
+  { path: '/nowplaying', icon: 'play',      label: 'Playing', center: true },
   { path: '/queue',      icon: 'queue',     label: 'Queue' },
   { path: '/favorites',  icon: 'favorites', label: 'Favorites' },
-  { path: '/songlist',   icon: 'songlist',  label: 'Song List' },
+  { path: '/remote',     icon: 'remote',    label: 'Remote' },
 ]
 
 export default function BottomNav({ hasNowPlaying }) {
@@ -83,24 +82,19 @@ export default function BottomNav({ hasNowPlaying }) {
              }`
           }
         >
-          {/* Queue badge */}
           {tab.path === '/queue' && queue.length > 0 && (
             <span className="absolute top-2 right-[calc(50%-16px)] bg-accent text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center leading-none">
               {queue.length > 99 ? '99+' : queue.length}
             </span>
           )}
-
-          {/* Now playing pulse */}
           {tab.center && hasNowPlaying && (
             <span className="absolute top-2 right-[calc(50%-12px)] w-2 h-2 rounded-full bg-success pulse-ring" />
           )}
-
           <Icon name={tab.icon} />
           <span className="text-xs">{tab.label}</span>
         </NavLink>
       ))}
 
-      {/* Settings — smaller, right side */}
       <NavLink
         to="/settings"
         className={({ isActive }) =>

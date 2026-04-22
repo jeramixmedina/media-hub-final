@@ -7,7 +7,7 @@ import NowPlaying from './screens/NowPlaying'
 import QueueScreen from './screens/QueueScreen'
 import FavoritesScreen from './screens/FavoritesScreen'
 import Settings from './screens/Settings'
-import SonglistScreen from './screens/SonglistScreen'
+import RemoteScreen from './screens/RemoteScreen'
 import { useApp } from './context/AppContext'
 
 export default function App() {
@@ -15,7 +15,6 @@ export default function App() {
 
   return (
     <div className="flex flex-col h-full bg-bg text-white">
-      {/* Main content area — fills above bottom nav */}
       <div className="flex-1 overflow-hidden relative">
         <Routes>
           <Route path="/"           element={<Navigate to="/songbook" replace />} />
@@ -25,11 +24,9 @@ export default function App() {
           <Route path="/queue"      element={<QueueScreen />} />
           <Route path="/favorites"  element={<FavoritesScreen />} />
           <Route path="/settings"   element={<Settings />} />
-          <Route path="/songlist"   element={<SonglistScreen />} />
+          <Route path="/remote"     element={<RemoteScreen />} />
         </Routes>
       </div>
-
-      {/* Bottom navigation */}
       <BottomNav hasNowPlaying={!!currentSong} />
     </div>
   )
