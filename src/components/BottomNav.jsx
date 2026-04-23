@@ -60,16 +60,20 @@ const tabs = [
   { path: '/songbook',   icon: 'songbook',  label: 'Songbook' },
   { path: '/search',     icon: 'search',    label: 'Search' },
   { path: '/nowplaying', icon: 'play',      label: 'Playing', center: true },
-  { path: '/queue',      icon: 'queue',     label: 'Queue' },
+  { path: '/queue',      icon: 'queue',     label: 'Up Next' },
   { path: '/favorites',  icon: 'favorites', label: 'Favorites' },
   { path: '/remote',     icon: 'remote',    label: 'Remote' },
 ]
 
-export default function BottomNav({ hasNowPlaying }) {
+export default function BottomNav({ hasNowPlaying, hidden = false }) {
   const { queue } = useApp()
 
   return (
-    <nav className="flex items-stretch bg-surface border-t border-white/5 shrink-0" style={{ height: 64 }}>
+    <nav
+      className={`flex items-stretch bg-surface border-t border-white/5 shrink-0 transition-all duration-300
+        ${hidden ? 'translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}
+      style={{ height: 56 }}
+    >
       {tabs.map(tab => (
         <NavLink
           key={tab.path}
@@ -91,7 +95,7 @@ export default function BottomNav({ hasNowPlaying }) {
             <span className="absolute top-2 right-[calc(50%-12px)] w-2 h-2 rounded-full bg-success pulse-ring" />
           )}
           <Icon name={tab.icon} />
-          <span className="text-xs">{tab.label}</span>
+          <span className="text-[11px] leading-none">{tab.label}</span>
         </NavLink>
       ))}
 
@@ -103,7 +107,7 @@ export default function BottomNav({ hasNowPlaying }) {
         }
       >
         <Icon name="settings" />
-        <span className="text-xs">Settings</span>
+        <span className="text-[11px] leading-none">Settings</span>
       </NavLink>
     </nav>
   )
