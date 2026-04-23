@@ -27,36 +27,36 @@ export default function NumpadOverlay({ onClose }) {
 
   return (
     <div
-      style={{ position:'fixed', inset:0, zIndex:200, background:'rgba(0,0,0,0.88)',
-        display:'flex', flexDirection:'column', justifyContent:'flex-end' }}
+      style={{ position:'fixed', inset:0, zIndex:200, background:'rgba(0,0,0,0.35)',
+        display:'flex', alignItems:'flex-end', justifyContent:'flex-end', padding:'0 16px 76px' }}
       onPointerDown={onClose}
     >
       <div
-        style={{ background:'#12121e', borderRadius:'20px 20px 0 0', padding:16 }}
+        style={{ background:'#12121e', borderRadius:20, padding:12, width:220 }}
         onPointerDown={e => e.stopPropagation()}
       >
         {/* Display */}
-        <div style={{ background:'#0a0a12', borderRadius:14, padding:'12px 16px',
-          marginBottom:12, minHeight:70 }}>
-          <div style={{ fontSize:36, fontWeight:700, color:'#a78bfa',
-            fontFamily:'monospace', letterSpacing:10 }}>
+        <div style={{ background:'#0a0a12', borderRadius:12, padding:'8px 10px',
+          marginBottom:8, minHeight:56 }}>
+          <div style={{ fontSize:26, fontWeight:700, color:'#a78bfa',
+            fontFamily:'monospace', letterSpacing:6 }}>
             {input || '—'}
           </div>
           {matched && (
             <div style={{ marginTop:4 }}>
-              <div style={{ color:'#f1f5f9', fontSize:14, fontWeight:500 }}>
+              <div style={{ color:'#f1f5f9', fontSize:12, fontWeight:500, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
                 {matched.title}
               </div>
-              <div style={{ color:'#475569', fontSize:12 }}>{matched.artist}</div>
+              <div style={{ color:'#475569', fontSize:11, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{matched.artist}</div>
             </div>
           )}
           {input && !matched && (
-            <div style={{ color:'#475569', fontSize:12, marginTop:4 }}>
+            <div style={{ color:'#475569', fontSize:11, marginTop:4 }}>
               No song with number {input}
             </div>
           )}
           {added && (
-            <div style={{ color:'#22c55e', fontSize:13, marginTop:4, fontWeight:500 }}>
+            <div style={{ color:'#22c55e', fontSize:11, marginTop:4, fontWeight:500 }}>
               Added to queue ✓
             </div>
           )}
@@ -64,7 +64,7 @@ export default function NumpadOverlay({ onClose }) {
 
         {/* Number grid */}
         <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)',
-          gap:8, marginBottom:10 }}>
+          gap:6, marginBottom:8 }}>
           {keys.map(k => (
             <button
               key={k}
@@ -81,9 +81,9 @@ export default function NumpadOverlay({ onClose }) {
                   ? (matched ? '#fff' : '#475569')
                   : k === '⌫' ? '#f59e0b' : '#f1f5f9',
                 border: 'none',
-                borderRadius: 14,
-                padding: '20px 0',
-                fontSize: k === '⌫' ? 22 : k === 'ADD' ? 14 : 26,
+                borderRadius: 10,
+                padding: '12px 0',
+                fontSize: k === '⌫' ? 18 : k === 'ADD' ? 12 : 20,
                 fontWeight: k === 'ADD' ? 700 : 500,
                 cursor: 'pointer',
                 transition: 'opacity .1s',
@@ -98,7 +98,7 @@ export default function NumpadOverlay({ onClose }) {
         <button
           onPointerDown={onClose}
           style={{ width:'100%', background:'transparent', color:'#475569',
-            border:'none', padding:'12px', fontSize:14 }}
+            border:'none', padding:'8px', fontSize:12 }}
         >
           Cancel
         </button>
