@@ -1,80 +1,14 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react'
-import { Filesystem, Directory, Encoding } from '@capacitor/filesystem'
+import React, { useEffect, useState } from 'react'
 import { Share } from '@capacitor/share'
 import { useApp } from '../context/AppContext'
-import LocalServer from '../plugins/LocalServer'
 import { sortLibrary } from '../lib/search'
 
 export default function RemoteScreen() {
-  const { library, currentSong, queue, addToQueue } = useApp()
+  const { library, remoteServerInfo, remoteStatus } = useApp()
   const [activeTab, setActiveTab]   = useState('songlist')  // songlist | remote
-  const [serverInfo, setServerInfo] = useState(null)
   const [qrSongList, setQrSongList] = useState(null)   // QR for song list page
   const [qrRemote, setQrRemote]     = useState(null)   // QR for remote control
-  const [status, setStatus]         = useState('starting')
   const [sharing, setSharing]       = useState(false)
-  const pollRef                     = useRef(null)
-
-  // ── Start server ─────────────────────────────────────────────────────────
-  useEffect(() => {
-    let alive = true
-    async function startUp() {
-      try {
-        const info = await LocalServer.start()
-        if (!alive) return
-        setServerInfo(info)
-        setStatus('running')
-        const base = `http://${info.ip}:${info.port}`
-        await Promise.all([
-          generateQr(`${base}/songlist`, setQrSongList),
-          generateQr(`${base}/remote`,   setQrRemote),
-        ])
-        startPolling()
-      } catch (err) {
-        if (!alive) return
-        setStatus('error')
-      }
-    }
-    startUp()
-    return () => {
-      alive = false
-      clearInterval(pollRef.current)
-      LocalServer.stop().catch(() => {})
-    }
-  }, [])
-
-  // ── Keep now-playing status synced for remote ─────────────────────────────
-  useEffect(() => { syncStatus() }, [currentSong?.id, queue.length])
-
-  async function syncStatus() {
-    try {
-      await Filesystem.writeFile({
-        path: 'remote-status.json',
-        data: JSON.stringify({
-          currentSong: currentSong
-            ? { id: currentSong.id, title: currentSong.title, artist: currentSong.artist }
-            : null,
-          queueLength: queue.length,
-        }),
-        directory: Directory.Data,
-        encoding: Encoding.UTF8,
-      })
-    } catch (e) {}
-  }
-
-  // ── Poll for queue commands from remote phones ─────────────────────────────
-  function startPolling() {
-    clearInterval(pollRef.current)
-    pollRef.current = setInterval(async () => {
-      try {
-        const cmd = await LocalServer.popCommand()
-        if (cmd?.songId) {
-          const song = library.find(s => s.id === cmd.songId)
-          if (song) addToQueue(song)
-        }
-      } catch (e) {}
-    }, 1000)
-  }
 
   // ── QR generator ──────────────────────────────────────────────────────────
   async function generateQr(url, setter) {
@@ -111,8 +45,17 @@ export default function RemoteScreen() {
     }
   }
 
+  useEffect(() => {
+    if (!remoteServerInfo) return
+    const base = `http://${remoteServerInfo.ip}:${remoteServerInfo.port}`
+    Promise.all([
+      generateQr(`${base}/songlist`, setQrSongList),
+      generateQr(`${base}/remote`, setQrRemote),
+    ])
+  }, [remoteServerInfo?.ip, remoteServerInfo?.port])
+
   const sortedSongs = sortLibrary(library)
-  const base = serverInfo ? `http://${serverInfo.ip}:${serverInfo.port}` : null
+  const base = remoteServerInfo ? `http://${remoteServerInfo.ip}:${remoteServerInfo.port}` : null
 
   return (
     <div className="flex flex-col h-full screen-enter">
@@ -217,12 +160,12 @@ export default function RemoteScreen() {
 
           {/* Status */}
           <div className={`flex items-center gap-2 mb-5 px-4 py-3 rounded-xl text-sm
-            ${status === 'running'  ? 'bg-success/10 text-success' :
-              status === 'error'    ? 'bg-warning/10 text-warning' :
+            ${remoteStatus === 'running'  ? 'bg-success/10 text-success' :
+              remoteStatus === 'error'    ? 'bg-warning/10 text-warning' :
               'bg-accent/10 text-accent-light'}`}>
-            {status === 'running'
+            {remoteStatus === 'running'
               ? <><span className="w-2 h-2 rounded-full bg-success" />Server running</>
-              : status === 'error'
+              : remoteStatus === 'error'
               ? <><span className="w-2 h-2 rounded-full bg-warning" />Could not start server</>
               : <><div className="w-3 h-3 border border-accent border-t-transparent rounded-full animate-spin" />Starting…</>}
           </div>
@@ -271,4 +214,3 @@ export default function RemoteScreen() {
     </div>
   )
 }
-

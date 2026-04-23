@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react'
+import React, { createContext, useContext, useReducer, useEffect, useCallback, useRef } from 'react'
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem'
 import {
   loadLibrary, saveLibrary,
   loadFavorites, saveFavorites,
@@ -6,6 +7,7 @@ import {
 } from '../lib/storage'
 import { scanAllFolders } from '../lib/scanner'
 import { buildIndex } from '../lib/search'
+import LocalServer from '../plugins/LocalServer'
 
 // ─── State Shape ──────────────────────────────────────────────────────────────
 
@@ -128,6 +130,7 @@ const AppContext = createContext(null)
 
 export function AppProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState)
+  const libraryRef = useRef(state.library)
 
   // ── Boot: load persisted data ──────────────────────────────────────────────
   useEffect(() => {
@@ -158,6 +161,73 @@ export function AppProvider({ children }) {
   useEffect(() => {
     saveSourceFolders(state.sourceFolders)
   }, [state.sourceFolders])
+
+  useEffect(() => {
+    libraryRef.current = state.library
+  }, [state.library])
+
+  // ── Remote server: keep alive app-wide so phone QR works on any screen ───
+  const [remoteServerInfo, setRemoteServerInfo] = React.useState(null)
+  const [remoteStatus, setRemoteStatus] = React.useState('starting')
+
+  useEffect(() => {
+    let cancelled = false
+    let pollTimer = null
+
+    async function bootRemote() {
+      try {
+        const info = await LocalServer.start()
+        if (cancelled) return
+        setRemoteServerInfo(info)
+        setRemoteStatus('running')
+
+        pollTimer = setInterval(async () => {
+          try {
+            const cmd = await LocalServer.popCommand()
+            if (cmd?.songId) {
+              const song = libraryRef.current.find(s => s.id === cmd.songId)
+              if (song) dispatch({ type: 'ADD_TO_QUEUE', song })
+            }
+          } catch (e) {}
+        }, 1000)
+      } catch (e) {
+        if (cancelled) return
+        setRemoteStatus('error')
+      }
+    }
+
+    bootRemote()
+
+    return () => {
+      cancelled = true
+      if (pollTimer) clearInterval(pollTimer)
+      LocalServer.stop().catch(() => {})
+    }
+  }, [])
+
+  // ── Keep now-playing status synced for remote page ────────────────────────
+  useEffect(() => {
+    async function syncStatus() {
+      try {
+        await Filesystem.writeFile({
+          path: 'remote-status.json',
+          data: JSON.stringify({
+            currentSong: state.currentSong
+              ? {
+                  id: state.currentSong.id,
+                  title: state.currentSong.title,
+                  artist: state.currentSong.artist,
+                }
+              : null,
+            queueLength: state.queue.length,
+          }),
+          directory: Directory.Data,
+          encoding: Encoding.UTF8,
+        })
+      } catch (e) {}
+    }
+    syncStatus()
+  }, [state.currentSong?.id, state.queue.length])
 
   // ── Actions ────────────────────────────────────────────────────────────────
 
@@ -193,6 +263,8 @@ export function AppProvider({ children }) {
 
   const value = {
     ...state,
+    remoteServerInfo,
+    remoteStatus,
     scanLibrary,
     addToQueue,
     addNextInQueue,
