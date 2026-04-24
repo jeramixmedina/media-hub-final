@@ -3,7 +3,6 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import BottomNav from './components/BottomNav'
 import PlaybackToolbar from './components/PlaybackToolbar'
 import Songbook from './screens/Songbook'
-import SearchScreen from './screens/SearchScreen'
 import NowPlaying from './screens/NowPlaying'
 import QueueScreen from './screens/QueueScreen'
 import FavoritesScreen from './screens/FavoritesScreen'
@@ -62,7 +61,7 @@ export default function App() {
         <Routes>
           <Route path="/"           element={<Navigate to="/songbook" replace />} />
           <Route path="/songbook"   element={<Songbook />} />
-          <Route path="/search"     element={<SearchScreen />} />
+          <Route path="/search"     element={<Songbook />} />
           <Route path="/nowplaying" element={<NowPlaying />} />
           <Route path="/queue"      element={<QueueScreen />} />
           <Route path="/favorites"  element={<FavoritesScreen />} />
