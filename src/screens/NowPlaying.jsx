@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 
 export default function NowPlaying() {
-  const { currentSong, songEnded } = useApp()
+  const { currentSong } = useApp()
   const navigate = useNavigate()
 
   if (!currentSong) {
