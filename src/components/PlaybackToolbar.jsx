@@ -7,7 +7,6 @@ export default function PlaybackToolbar({ hidden = false }) {
   const { currentSong, queue } = useApp()
   const [showNumpad, setShowNumpad] = useState(false)
   const [showQR, setShowQR]         = useState(false)
-  const upNextSongs = queue.slice(0, 6)
 
   // Only show toolbar when a song is playing
   if (!currentSong) return null
@@ -28,58 +27,20 @@ export default function PlaybackToolbar({ hidden = false }) {
         }}
       >
 
-        {/* Up next queue titles in compact chips */}
-        <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
-          <div style={{ display: 'flex', gap: 5, overflowX: 'auto', paddingBottom: 1 }}>
-            {upNextSongs.length === 0 && (
-              <span style={{
-                fontSize: 10,
-                color: '#64748b',
-                border: '1px solid rgba(100,116,139,0.35)',
-                background: '#121224',
-                borderRadius: 999,
-                padding: '4px 8px',
-                whiteSpace: 'nowrap',
-              }}>
-                Up next: —
-              </span>
-            )}
-            {upNextSongs.map((song, index) => (
-              <span
-                key={`${song.id}-${index}`}
-                style={{
-                  fontSize: 10,
-                  fontWeight: 500,
-                  color: '#a78bfa',
-                  border: '1px solid rgba(124,58,237,0.35)',
-                  background: '#14142a',
-                  borderRadius: 999,
-                  padding: '4px 8px',
-                  maxWidth: 88,
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  flexShrink: 0,
-                }}
-                title={song.title}
-              >
-                {song.title}
-              </span>
-            ))}
-            {queue.length > 6 && (
-              <span style={{
-                fontSize: 10,
-                color: '#64748b',
-                border: '1px solid rgba(100,116,139,0.35)',
-                background: '#121224',
-                borderRadius: 999,
-                padding: '4px 8px',
-                whiteSpace: 'nowrap',
-                flexShrink: 0,
-              }}>
-                +{queue.length - 6}
-              </span>
-            )}
+        {/* Now playing + up next */}
+        <div style={{ flex:1, minWidth:0 }}>
+          <div style={{
+            fontSize: 11,
+            fontWeight: 500,
+            color: '#a78bfa',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}>
+            ▶ {currentSong.title}
+            <span style={{ color: '#475569' }}>
+              {' '}· Up next {queue.length}
+            </span>
           </div>
         </div>
 

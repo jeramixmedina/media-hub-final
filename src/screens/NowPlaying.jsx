@@ -1,5 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import VideoPlayer from '../components/VideoPlayer'
 import { useApp } from '../context/AppContext'
 
 export default function NowPlaying() {
@@ -27,7 +28,10 @@ export default function NowPlaying() {
 
   return (
     <div className="flex flex-col h-full bg-black screen-enter">
-      <div className="flex-1" />
+      {/* Video — takes most of the screen */}
+      <div className="flex-1 overflow-hidden">
+        <VideoPlayer />
+      </div>
     </div>
   )
 }

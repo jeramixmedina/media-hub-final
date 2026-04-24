@@ -22,7 +22,6 @@ export default function Settings() {
   const [savedId, setSavedId]                     = useState(null)
   const [isExportingPdf, setIsExportingPdf]       = useState(false)
   const [exportMessage, setExportMessage]         = useState('')
-  const [numberSettings, setNumberSettings]       = useState({})
 
   // Songs for number editor
   const editorSongs = useMemo(() => {
@@ -79,35 +78,19 @@ export default function Settings() {
       const stamp = new Date().toISOString().slice(0, 10)
       const filename = `MediaHub_SongList_${stamp}.pdf`
 
-      let targetDir = Directory.Documents
-      try {
-        await Filesystem.writeFile({
-          path: filename,
-          data,
-          directory: targetDir,
-          recursive: true,
-        })
-      } catch {
-        targetDir = Directory.Data
-        await Filesystem.writeFile({
-          path: filename,
-          data,
-          directory: targetDir,
-          recursive: true,
-        })
-      }
-      setExportMessage(`Saved to ${targetDir}/${filename}`)
+      await Filesystem.writeFile({
+        path: filename,
+        data,
+        directory: Directory.Documents,
+        recursive: true,
+      })
+      setExportMessage(`Saved to Documents/${filename}`)
     } catch (err) {
       console.error('Export PDF failed:', err)
       setExportMessage('Could not export PDF. Please try again.')
     } finally {
       setIsExportingPdf(false)
     }
-  }
-
-  async function runAutoNumberingStub(payload) {
-    console.log('Auto numbering payload (stub):', payload)
-    return []
   }
 
   return (
