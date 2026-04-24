@@ -3,6 +3,7 @@ import { FixedSizeList as List } from 'react-window'
 import { useApp } from '../context/AppContext'
 import { search, sortLibrary } from '../lib/search'
 import SongRow from '../components/SongRow'
+import FilterPanel from '../components/FilterPanel'
 
 const ROW_HEIGHT = 72
 
@@ -92,6 +93,8 @@ export default function Songbook() {
             </button>
           ))}
         </div>
+
+        <FilterPanel />
       </div>
 
       {/* Empty state */}
