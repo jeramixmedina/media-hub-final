@@ -50,7 +50,7 @@ function Icon({ name }) {
   return icons[name] || null
 }
 
-const tabs = [
+const navTabs = [
   { path: '/songbook',   icon: 'songbook',  label: 'Songbook' },
   { path: '/nowplaying', icon: 'play',      label: 'Playing', center: true },
   { path: '/queue',      icon: 'queue',     label: 'Up Next' },
@@ -60,6 +60,14 @@ const tabs = [
 
 export default function BottomNav({ hasNowPlaying, hidden = false }) {
   const { queue } = useApp()
+  const getTabTextClass = (tab, isActive) => {
+    if (tab.center) {
+      if (isActive) return 'text-accent-light'
+      return hasNowPlaying ? 'text-accent' : 'text-muted'
+    }
+
+    return isActive ? 'text-accent-light' : 'text-muted'
+  }
 
   return (
     <nav
@@ -67,16 +75,13 @@ export default function BottomNav({ hasNowPlaying, hidden = false }) {
         ${hidden ? 'translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}
       style={{ height: 56 }}
     >
-      {tabs.map(tab => (
+      {navTabs.map(tab => (
         <NavLink
           key={tab.path}
           to={tab.path}
           className={({ isActive }) =>
             `flex-1 flex flex-col items-center justify-center gap-0.5 no-select touchable relative
-             ${tab.center
-               ? isActive ? 'text-accent-light' : hasNowPlaying ? 'text-accent' : 'text-muted'
-               : isActive ? 'text-accent-light' : 'text-muted'
-             }`
+             ${getTabTextClass(tab, isActive)}`
           }
         >
           {tab.path === '/queue' && queue.length > 0 && (
