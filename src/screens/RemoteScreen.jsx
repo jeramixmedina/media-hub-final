@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Share } from '@capacitor/share'
 import { useApp } from '../context/AppContext'
 import { sortLibrary } from '../lib/search'
+import { buildSongListText } from '../lib/songlistExport'
 
 export default function RemoteScreen() {
   const { library, remoteServerInfo, remoteStatus } = useApp()
@@ -27,11 +28,7 @@ export default function RemoteScreen() {
   async function shareSongList() {
     setSharing(true)
     try {
-      const sorted = sortLibrary(library)
-      const lines = sorted.map(s =>
-        `${s.number ? String(s.number).padStart(4, ' ') : '   —'} | ${s.title} — ${s.artist}`
-      )
-      const text = `MEDIA HUB SONG LIST\n${'─'.repeat(50)}\n NUM | TITLE — ARTIST\n${'─'.repeat(50)}\n${lines.join('\n')}`
+      const text = buildSongListText(library)
 
       await Share.share({
         title: 'Media Hub Song List',

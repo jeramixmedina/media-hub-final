@@ -4,7 +4,7 @@ import VideoPlayer from '../components/VideoPlayer'
 import { useApp } from '../context/AppContext'
 
 export default function NowPlaying() {
-  const { currentSong, queue, songEnded, addNextInQueue } = useApp()
+  const { currentSong, songEnded } = useApp()
   const navigate = useNavigate()
 
   if (!currentSong) {
@@ -32,41 +32,6 @@ export default function NowPlaying() {
       <div className="flex-1 overflow-hidden">
         <VideoPlayer />
       </div>
-
-      {/* Up Next strip — shows next 3 in queue */}
-      {queue.length > 0 && (
-        <div className="bg-surface border-t border-white/5 shrink-0">
-          <div className="px-4 py-2 flex items-center gap-2">
-            <span className="text-muted text-xs font-medium uppercase tracking-wider">Up next</span>
-            <span className="text-accent text-xs bg-accent/20 px-2 py-0.5 rounded-full">{queue.length}</span>
-          </div>
-          <div className="overflow-x-auto">
-            <div className="flex gap-2 px-4 pb-3" style={{ width: 'max-content' }}>
-              {queue.slice(0, 5).map((song, i) => (
-                <div
-                  key={`${song.id}-${i}`}
-                  className="bg-card rounded-xl px-3 py-2 flex items-center gap-2 shrink-0"
-                  style={{ maxWidth: 200 }}
-                >
-                  <span className="text-accent-light text-xs font-mono shrink-0">#{i + 1}</span>
-                  <div className="min-w-0">
-                    <p className="text-white text-xs font-medium truncate">{song.title}</p>
-                    <p className="text-muted text-xs truncate">{song.artist}</p>
-                  </div>
-                </div>
-              ))}
-              {queue.length > 5 && (
-                <button
-                  className="bg-card rounded-xl px-3 py-2 flex items-center shrink-0 touchable"
-                  onPointerDown={() => navigate('/queue')}
-                >
-                  <span className="text-muted text-xs">+{queue.length - 5} more</span>
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
