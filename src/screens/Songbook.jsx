@@ -10,8 +10,31 @@ export default function Songbook() {
   const { library, hasLibrary, isScanning, scanCount } = useApp()
   const [query, setQuery]       = useState('')
   const [filter, setFilter]     = useState('all') // all | numbered | unnumbered
+  const [subtypeFilter, setSubtypeFilter] = useState('all')
+  const [filetypeFilter, setFiletypeFilter] = useState('all')
+  const [artistFilter, setArtistFilter] = useState('')
+  const [genreFilter, setGenreFilter] = useState('')
   const containerRef            = useRef(null)
   const [containerHeight, setContainerHeight] = useState(500)
+
+  const getFiletype = useCallback(song => {
+    const path = song?.filePath || ''
+    const index = path.lastIndexOf('.')
+    return index >= 0 ? path.slice(index + 1).toLowerCase() : 'unknown'
+  }, [])
+
+  const getSubtype = useCallback(song => {
+    if (song?.subtype) return song.subtype.toLowerCase()
+    const text = `${song?.title || ''} ${song?.artist || ''} ${song?.filePath || ''}`.toLowerCase()
+    if (/\bkaraoke\b|\bktv\b|\binstrumental\b|\binst\b/.test(text)) return 'karaoke'
+    if (/\bremix\b|\brmx\b|\bclub mix\b|\bedit\b/.test(text)) return 'remix'
+    if (/\bmtv\b|\bmv\b|\bvideo edit\b/.test(text)) return 'mtv'
+    if (getFiletype(song) === 'mp3') return 'mp3'
+    return 'unknown'
+  }, [getFiletype])
+
+  const subtypeOptions = useMemo(() => ['all', ...new Set(library.map(getSubtype))], [library, getSubtype])
+  const filetypeOptions = useMemo(() => ['all', ...new Set(library.map(getFiletype))], [library, getFiletype])
 
   // Measure available height for virtual list
   const measuredRef = useCallback(node => {
@@ -24,8 +47,12 @@ export default function Songbook() {
     let songs = query.trim() ? search(query, library) : sortLibrary(library)
     if (filter === 'numbered')   songs = songs.filter(s => s.number != null)
     if (filter === 'unnumbered') songs = songs.filter(s => s.number == null)
+    if (subtypeFilter !== 'all') songs = songs.filter(s => getSubtype(s) === subtypeFilter)
+    if (filetypeFilter !== 'all') songs = songs.filter(s => getFiletype(s) === filetypeFilter)
+    if (artistFilter.trim()) songs = songs.filter(s => (s.artist || '').toLowerCase().includes(artistFilter.toLowerCase()))
+    if (genreFilter.trim()) songs = songs.filter(s => (s.genre || '').toLowerCase().includes(genreFilter.toLowerCase()))
     return songs
-  }, [query, library, filter])
+  }, [query, library, filter, subtypeFilter, filetypeFilter, artistFilter, genreFilter, getSubtype, getFiletype])
 
   const Row = useCallback(({ index, style }) => (
     <SongRow song={results[index]} style={style} />
@@ -91,6 +118,29 @@ export default function Songbook() {
               {label}
             </button>
           ))}
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 mt-3">
+          <select value={subtypeFilter} onChange={e => setSubtypeFilter(e.target.value)}
+            className="bg-card text-white text-xs rounded-lg px-2 py-2 outline-none">
+            {subtypeOptions.map(option => <option key={option} value={option}>{option}</option>)}
+          </select>
+          <select value={filetypeFilter} onChange={e => setFiletypeFilter(e.target.value)}
+            className="bg-card text-white text-xs rounded-lg px-2 py-2 outline-none">
+            {filetypeOptions.map(option => <option key={option} value={option}>{option}</option>)}
+          </select>
+          <input
+            value={artistFilter}
+            onChange={e => setArtistFilter(e.target.value)}
+            placeholder="Filter artist"
+            className="bg-card text-white text-xs rounded-lg px-2 py-2 outline-none"
+          />
+          <input
+            value={genreFilter}
+            onChange={e => setGenreFilter(e.target.value)}
+            placeholder="Filter genre"
+            className="bg-card text-white text-xs rounded-lg px-2 py-2 outline-none"
+          />
         </div>
       </div>
 

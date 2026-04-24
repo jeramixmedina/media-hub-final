@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import BottomNav from './components/BottomNav'
 import PlaybackToolbar from './components/PlaybackToolbar'
+import VideoPlayer from './components/VideoPlayer'
 import Songbook from './screens/Songbook'
 import NowPlaying from './screens/NowPlaying'
 import QueueScreen from './screens/QueueScreen'
@@ -16,6 +17,7 @@ export default function App() {
   const [navHidden, setNavHidden] = useState(false)
   const hideTimerRef = useRef(null)
   const isNowPlayingVideo = location.pathname === '/nowplaying' && !!currentSong
+  const showVideoLayer = !!currentSong
 
   const scheduleAutoHide = useCallback(() => {
     clearTimeout(hideTimerRef.current)
@@ -58,6 +60,16 @@ export default function App() {
   return (
     <div className="flex flex-col h-full bg-bg text-white">
       <div className="flex-1 overflow-hidden relative">
+        {showVideoLayer && (
+          <div
+            className={`absolute z-20 bg-black transition-all duration-200
+              ${isNowPlayingVideo
+                ? 'inset-0 opacity-100 pointer-events-auto'
+                : 'w-px h-px bottom-0 right-0 opacity-0 pointer-events-none overflow-hidden'}`}
+          >
+            <VideoPlayer />
+          </div>
+        )}
         <Routes>
           <Route path="/"           element={<Navigate to="/songbook" replace />} />
           <Route path="/songbook"   element={<Songbook />} />

@@ -7,7 +7,6 @@ export default function PlaybackToolbar({ hidden = false }) {
   const { currentSong, queue } = useApp()
   const [showNumpad, setShowNumpad] = useState(false)
   const [showQR, setShowQR]         = useState(false)
-  const upNextTitles = queue.slice(0, 3).map(song => song.title).join(' • ')
 
   // Only show toolbar when a song is playing
   if (!currentSong) return null
@@ -28,7 +27,7 @@ export default function PlaybackToolbar({ hidden = false }) {
         }}
       >
 
-        {/* Up next queue titles */}
+        {/* Now playing + up next */}
         <div style={{ flex:1, minWidth:0 }}>
           <div style={{
             fontSize: 11,
@@ -38,7 +37,10 @@ export default function PlaybackToolbar({ hidden = false }) {
             overflow: 'hidden',
             textOverflow: 'ellipsis',
           }}>
-            {queue.length > 0 ? `Up next: ${upNextTitles}` : 'Up next: —'}
+            ▶ {currentSong.title}
+            <span style={{ color: '#475569' }}>
+              {' '}· Up next {queue.length}
+            </span>
           </div>
         </div>
 

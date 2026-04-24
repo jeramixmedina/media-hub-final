@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react'
 import { Filesystem, Directory } from '@capacitor/filesystem'
 import { useApp } from '../context/AppContext'
 import FolderBrowser from '../components/FolderBrowser'
+import SongNumberSettings from '../components/SongNumberSettings'
 import { sortLibrary } from '../lib/search'
 import { buildSongListLines } from '../lib/songlistExport'
 import { buildSimpleTextPdfBase64 } from '../lib/pdf'
@@ -220,6 +221,13 @@ export default function Settings() {
       {/* ── NUMBERS TAB ─────────────────────────────────────────────────── */}
       {activeTab === 'numbers' && (
         <div className="flex flex-col flex-1 overflow-hidden">
+          <div className="px-4 py-3 border-b border-white/5 shrink-0">
+            <SongNumberSettings
+              config={numberSettings}
+              onSaveConfig={setNumberSettings}
+              runAutoNumbering={runAutoNumberingStub}
+            />
+          </div>
           <div className="px-4 py-3 border-b border-white/5 shrink-0">
             <div className="relative">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
