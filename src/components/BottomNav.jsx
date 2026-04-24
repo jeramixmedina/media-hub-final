@@ -11,12 +11,6 @@ function Icon({ name }) {
         <circle cx="18" cy="16" r="3"/>
       </svg>
     ),
-    search: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
-        <circle cx="11" cy="11" r="8"/>
-        <path d="m21 21-4.35-4.35"/>
-      </svg>
-    ),
     play: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
         <circle cx="12" cy="12" r="10"/>
@@ -58,7 +52,6 @@ function Icon({ name }) {
 
 const tabs = [
   { path: '/songbook',   icon: 'songbook',  label: 'Songbook' },
-  { path: '/search',     icon: 'search',    label: 'Search' },
   { path: '/nowplaying', icon: 'play',      label: 'Playing', center: true },
   { path: '/queue',      icon: 'queue',     label: 'Up Next' },
   { path: '/favorites',  icon: 'favorites', label: 'Favorites' },
