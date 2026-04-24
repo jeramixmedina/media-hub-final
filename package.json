@@ -6,6 +6,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "test:internal-remote": "node scripts/internal-qr-remote-checks.mjs",
     "sync": "npx cap sync android",
     "android": "npx cap sync android && npx cap open android"
   },
