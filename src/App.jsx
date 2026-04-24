@@ -61,7 +61,7 @@ export default function App() {
         <Routes>
           <Route path="/"           element={<Navigate to="/songbook" replace />} />
           <Route path="/songbook"   element={<Songbook />} />
-          <Route path="/search"     element={<Navigate to="/songbook" replace />} />
+          <Route path="/search"     element={<Songbook />} />
           <Route path="/nowplaying" element={<NowPlaying />} />
           <Route path="/queue"      element={<QueueScreen />} />
           <Route path="/favorites"  element={<FavoritesScreen />} />
