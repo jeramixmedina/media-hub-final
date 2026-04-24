@@ -71,7 +71,7 @@ export default function App() {
       </div>
 
       {/* Playback toolbar — numpad + QR, only shows when song is playing */}
-      <PlaybackToolbar />
+      <PlaybackToolbar hidden={navHidden} />
 
       {/* Main nav */}
       <BottomNav hasNowPlaying={!!currentSong} hidden={navHidden} />

@@ -3,10 +3,11 @@ import { useApp } from '../context/AppContext'
 import NumpadOverlay from './NumpadOverlay'
 import QRMini from './QRMini'
 
-export default function PlaybackToolbar() {
+export default function PlaybackToolbar({ hidden = false }) {
   const { currentSong, queue } = useApp()
   const [showNumpad, setShowNumpad] = useState(false)
   const [showQR, setShowQR]         = useState(false)
+  const upNextTitles = queue.slice(0, 3).map(song => song.title).join(' • ')
 
   // Only show toolbar when a song is playing
   if (!currentSong) return null
@@ -14,18 +15,20 @@ export default function PlaybackToolbar() {
   return (
     <>
       {/* Toolbar strip above nav bar */}
-      <div style={{
-        background: '#0d0d1a',
-        borderTop: '1px solid rgba(124,58,237,0.2)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 10,
-        padding: '5px 10px',
-        flexShrink: 0,
-      }}>
+      <div
+        className={`transition-all duration-300 overflow-hidden shrink-0 ${hidden ? 'max-h-0 opacity-0 pointer-events-none border-t-0 py-0' : 'max-h-20 opacity-100'}`}
+        style={{
+          background: '#0d0d1a',
+          borderTop: '1px solid rgba(124,58,237,0.2)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 10,
+          padding: '5px 10px',
+        }}
+      >
 
-        {/* Now playing + up next */}
+        {/* Up next queue titles */}
         <div style={{ flex:1, minWidth:0 }}>
           <div style={{
             fontSize: 11,
@@ -35,10 +38,7 @@ export default function PlaybackToolbar() {
             overflow: 'hidden',
             textOverflow: 'ellipsis',
           }}>
-            ▶ {currentSong.title}
-            <span style={{ color: '#475569' }}>
-              {' '}· Up next {queue.length}
-            </span>
+            {queue.length > 0 ? `Up next: ${upNextTitles}` : 'Up next: —'}
           </div>
         </div>
 
