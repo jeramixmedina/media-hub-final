@@ -2,8 +2,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import BottomNav from './components/BottomNav'
 import PlaybackToolbar from './components/PlaybackToolbar'
+import VideoPlayer from './components/VideoPlayer'
 import Songbook from './screens/Songbook'
-import SearchScreen from './screens/SearchScreen'
 import NowPlaying from './screens/NowPlaying'
 import QueueScreen from './screens/QueueScreen'
 import FavoritesScreen from './screens/FavoritesScreen'
@@ -17,6 +17,7 @@ export default function App() {
   const [navHidden, setNavHidden] = useState(false)
   const hideTimerRef = useRef(null)
   const isNowPlayingVideo = location.pathname === '/nowplaying' && !!currentSong
+  const showVideoLayer = !!currentSong
 
   const scheduleAutoHide = useCallback(() => {
     clearTimeout(hideTimerRef.current)
@@ -59,10 +60,18 @@ export default function App() {
   return (
     <div className="flex flex-col h-full bg-bg text-white">
       <div className="flex-1 overflow-hidden relative">
+        {showVideoLayer && (
+          <div
+            className={`absolute inset-0 z-20 bg-black transition-opacity duration-200
+              ${isNowPlayingVideo ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+          >
+            <VideoPlayer />
+          </div>
+        )}
         <Routes>
           <Route path="/"           element={<Navigate to="/songbook" replace />} />
           <Route path="/songbook"   element={<Songbook />} />
-          <Route path="/search"     element={<SearchScreen />} />
+          <Route path="/search"     element={<Songbook />} />
           <Route path="/nowplaying" element={<NowPlaying />} />
           <Route path="/queue"      element={<QueueScreen />} />
           <Route path="/favorites"  element={<FavoritesScreen />} />
@@ -72,7 +81,7 @@ export default function App() {
       </div>
 
       {/* Playback toolbar — numpad + QR, only shows when song is playing */}
-      <PlaybackToolbar />
+      <PlaybackToolbar hidden={navHidden} />
 
       {/* Main nav */}
       <BottomNav hasNowPlaying={!!currentSong} hidden={navHidden} />
