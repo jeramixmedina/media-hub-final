@@ -1,7 +1,11 @@
 import React, { useState, useMemo } from 'react'
+import { Filesystem, Directory } from '@capacitor/filesystem'
 import { useApp } from '../context/AppContext'
 import FolderBrowser from '../components/FolderBrowser'
+import SongNumberSettings from '../components/SongNumberSettings'
 import { sortLibrary } from '../lib/search'
+import { buildSongListLines } from '../lib/songlistExport'
+import { buildSimpleTextPdfBase64 } from '../lib/pdf'
 
 export default function Settings() {
   const {
@@ -16,6 +20,9 @@ export default function Settings() {
   const [editingId, setEditingId]                 = useState(null)
   const [editValues, setEditValues]               = useState({})
   const [savedId, setSavedId]                     = useState(null)
+  const [isExportingPdf, setIsExportingPdf]       = useState(false)
+  const [exportMessage, setExportMessage]         = useState('')
+  const [numberSettings, setNumberSettings]       = useState({})
 
   // Songs for number editor
   const editorSongs = useMemo(() => {
@@ -54,6 +61,53 @@ export default function Settings() {
   function cancelEdit() {
     setEditingId(null)
     setEditValues({})
+  }
+
+  async function exportSongListPdf() {
+    if (isExportingPdf) return
+    setIsExportingPdf(true)
+    setExportMessage('')
+    try {
+      const lines = [
+        'MEDIA HUB SONG LIST',
+        '--------------------------------------------------',
+        ' NUM | TITLE — ARTIST',
+        '--------------------------------------------------',
+        ...buildSongListLines(library),
+      ]
+      const data = buildSimpleTextPdfBase64(lines)
+      const stamp = new Date().toISOString().slice(0, 10)
+      const filename = `MediaHub_SongList_${stamp}.pdf`
+
+      let targetDir = Directory.Documents
+      try {
+        await Filesystem.writeFile({
+          path: filename,
+          data,
+          directory: targetDir,
+          recursive: true,
+        })
+      } catch {
+        targetDir = Directory.Data
+        await Filesystem.writeFile({
+          path: filename,
+          data,
+          directory: targetDir,
+          recursive: true,
+        })
+      }
+      setExportMessage(`Saved to ${targetDir}/${filename}`)
+    } catch (err) {
+      console.error('Export PDF failed:', err)
+      setExportMessage('Could not export PDF. Please try again.')
+    } finally {
+      setIsExportingPdf(false)
+    }
+  }
+
+  async function runAutoNumberingStub(payload) {
+    console.log('Auto numbering payload (stub):', payload)
+    return []
   }
 
   return (
@@ -160,6 +214,23 @@ export default function Settings() {
                 Run a scan after adding new videos. Existing song numbers are preserved.
               </p>
             </div>
+
+            <div className="bg-card rounded-2xl px-4 py-4 mt-4">
+              <div className="flex items-center justify-between mb-2 gap-3">
+                <div>
+                  <p className="text-white font-medium">Export Song List PDF</p>
+                  <p className="text-muted text-xs mt-0.5">Offline copy of the same numbered list used for Song List sharing.</p>
+                </div>
+                <button
+                  className={`px-4 py-2 rounded-xl text-white text-sm font-medium touchable ${isExportingPdf ? 'bg-muted' : 'bg-accent'}`}
+                  onPointerDown={exportSongListPdf}
+                  disabled={isExportingPdf}
+                >
+                  {isExportingPdf ? 'Exporting…' : 'Export PDF'}
+                </button>
+              </div>
+              {exportMessage && <p className="text-muted text-xs">{exportMessage}</p>}
+            </div>
           </div>
         </div>
       )}
@@ -167,6 +238,13 @@ export default function Settings() {
       {/* ── NUMBERS TAB ─────────────────────────────────────────────────── */}
       {activeTab === 'numbers' && (
         <div className="flex flex-col flex-1 overflow-hidden">
+          <div className="px-4 py-3 border-b border-white/5 shrink-0">
+            <SongNumberSettings
+              config={numberSettings}
+              onSaveConfig={setNumberSettings}
+              runAutoNumbering={runAutoNumberingStub}
+            />
+          </div>
           <div className="px-4 py-3 border-b border-white/5 shrink-0">
             <div className="relative">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
